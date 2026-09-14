@@ -1,63 +1,86 @@
-# Apartment from photos
+# Apartment Virtual Tour
 
-A four-bedroom apartment reconstructed from **12 interior photos and a floor plan**, modeled and rendered in Blender, and made explorable in the browser. Built by [Dylan Szeto](https://x.com/dylan_szeto) with AI assistance.
+**A 360° apartment walkthrough built with Blender, Three.js, and AI.**
 
-The experiment: can a small set of listing photos make a layout easier to understand before an in-person visit?
+Starting with 12 interior photos and a floor plan, this project recreates a four-bedroom apartment as a room-by-room virtual tour. Explore 11 viewpoints, look around in every direction, and compare the result with the original photos.
+
+Built by [Dylan Szeto](https://x.com/dylan_szeto). Featured apartment: **2861 California Street, Unit 4**.
+
+**[Open the live tour](https://2861-california-unit-4.vercel.app/)** · **[Download the Blender model](https://2861-california-unit-4.vercel.app/models/2861-california-unit-4.blend)**
 
 ![Blender daylight rendering of the reconstructed kitchen](public/preview.png)
 
-**[Open the live walkthrough](https://2861-california-unit-4.vercel.app/)** · **[GitHub source](https://github.com/dylanxzthomas/california-unit-4)**
+## Explore the apartment
 
-## Explore
+- Drag to look around, scroll to zoom, and click a marker to move between viewpoints.
+- Choose any room from the map. On mobile, tap **Rooms**.
+- Open **Original photos** to compare the recreation with its inputs.
+- Find the code and editable apartment under **About**.
 
-- **Virtual tour:** 11 Blender Cycles panoramas. Drag to look, scroll to zoom, and select room markers to move between fixed viewpoints.
-- Compare against the source photos and complete floor plan. Download the editable Blender model inside **About**.
+## Run the website locally
 
-## Run locally
-
-Node.js 22.13 or newer in the Node 22 series.
+Use Node.js 22.13 or newer in the Node 22 series.
 
 ```sh
+git clone https://github.com/dylanxzthomas/apartment-virtual-tour.git
+cd apartment-virtual-tour
 npm ci
 npm run dev
 ```
 
+Open the local URL printed in the terminal. The tour images are included, so Blender, API keys, and a database are not needed to run the website.
+
+To build and preview the production website:
+
 ```sh
 npm run build
 npm run preview
+```
+
+To check the included assets and navigation:
+
+```sh
 npm run validate
 ```
 
-Deploy on Vercel with the Vite preset. The included configuration builds to `dist`; no environment variables, API keys, database, or Blender installation are required to run the website.
+## Open and render in Blender
+
+You can work on the apartment directly without running the website or rebuilding the scene.
+
+1. Install [Blender](https://www.blender.org/download/). The included scene was saved with **Blender 5.2.1**; use that version or a compatible newer release.
+2. Download the model using the link above, or open `blender/2861-california-unit-4-daylight.blend` from this repository with **File → Open**. Geometry, materials, lighting, and the scene's used textures are included.
+3. Explore in the 3D Viewport. Use **View → Navigation → Walk Navigation** for a first-person view; move with **W/A/S/D** and look with the mouse. Left-click confirms the view; Esc cancels. See Blender's [walk navigation guide](https://docs.blender.org/manual/en/latest/editors/3dview/navigate/walk_fly.html).
+4. For a rendered image, keep **Cycles** selected in Render Properties. Choose **CPU** as the render device, or configure your GPU in **Preferences → System → Cycles Render Devices**, then select **GPU Compute** in Render Properties. Apple Silicon uses Metal; other supported devices use their corresponding backend. See [Blender's GPU setup guide](https://docs.blender.org/manual/en/latest/render/cycles/gpu_rendering.html).
+5. Choose **Render → Render Image** to render the active camera. Save the result from the render window's **Image → Save As** menu. Save edits to a new `.blend` file with **File → Save As**.
+
+### Regenerate the web tour
+
+The included `blender/render_tour.py` script opens the daylight scene and renders the website's panoramas. It is configured for **Metal on macOS**. From the repository root, render just the kitchen first:
+
+```sh
+/Applications/Blender.app/Contents/MacOS/Blender \
+  --background --python-exit-code 1 \
+  --python blender/render_tour.py -- kitchen
+```
+
+The result replaces `public/daylight-tour/kitchen.jpg`. Omit `-- kitchen` to render all 11 viewpoints. This also updates the tour manifest and selected reflection captures. Rendering takes substantially longer than starting the website.
+
+On Windows or Linux, use your Blender executable and change the script's Metal device setup to your supported GPU backend or CPU before running it. If you edit a different `.blend` file, update the script's input path or save your changes to the daylight source it loads. After rendering, run `npm run build` to include the new images in the website build.
 
 ## How it works
 
-React and Three.js handle the interface and navigation. Blender Cycles supplies the daylight-rendered panoramas, four diffuse lightmaps, and three HDR reflection captures. The web geometry is a losslessly compressed GLB, decompressed in the browser. The rendered tour loads one viewpoint at a time; Free walk loads the larger model and lighting assets when selected.
+Blender Cycles renders the daylight, shadows, materials, and reflections into 360° images. Three.js displays those images in an interactive viewer; React handles room navigation, the photo gallery, and the interface. Moving to another room loads its panorama and fades it into view.
 
-The project is a manual reconstruction guided by the photos and plan, not an automated scan. Sunlight and bounced light were rendered in Blender; the browser's continuous mode approximates some glass and reflections for responsiveness.
+The public site uses the virtual tour only. An earlier continuous 3D viewer and its lighting assets remain in the repository for people interested in exploring that approach.
 
-## Source layout
+## Project structure
 
 - `app/`: interface and styles
-- `lib/tour-scene.ts`: panorama viewer
-- `lib/detailed-scene.ts`: continuous 3D viewer
-- `lib/navigation.ts`: room connections and collision constraints
-- `public/daylight-tour/`: 11 rendered viewpoints
-- `public/models/`: downloadable Blender project and web assets
-- `public/references/`: supplied photos and plans
-- `blender/`: editable source, modeling/rendering scripts, and evidence notes
-- `scripts/`: asset and navigation validation
+- `lib/tour-scene.ts`: the 360° viewer and room markers
+- `public/daylight-tour/`: rendered panoramas and viewpoint manifest
+- `public/models/`: downloadable Blender model and earlier web-model assets
+- `public/references/`: original photos and floor plans
+- `blender/`: editable source and modeling/rendering scripts
+- `scripts/`: asset and navigation checks
 
-See [Blender workflow](blender/README.md) and [model evidence](blender/FULL_UNIT_EVIDENCE.md). The rendering scripts use the original Mac Metal setup; choose your own Cycles device on other platforms.
-
-## Accuracy
-
-2861 California Street, Unit 4. Reported details: 4 bedrooms, 2 bathrooms, 1,140 square feet. The plan establishes room connections; dimensions, some photo assignments, exterior scenery, and sun direction are inferred. This is not a measured survey, a solar study, or a photogrammetry scan. Panorama transitions are fades between fixed positions, not a continuously moving camera.
-
-Source photographs and the plan were supplied for this project; their inclusion is not a grant of reuse rights. No blanket license is asserted for third-party source materials.
-
-## Deployment notes
-
-The production release is hosted in the `trim-projects` Vercel workspace. The initial deployment was submitted through the Vercel connector and built from a pinned public GitHub commit. Git pushes do not automatically redeploy this project yet. To enable that workflow, connect this repository in the Vercel project’s Git settings and use its Vite configuration.
-
-The public experience now presents only the Virtual tour. The earlier continuous viewer remains in the source repository for builders, but is not exposed in the public interface.
+See the [Blender workflow](blender/README.md) for the modeling and lighting pipeline.

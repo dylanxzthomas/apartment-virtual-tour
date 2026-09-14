@@ -7,7 +7,7 @@ import { rooms, photoCaptions } from '@/lib/apartment-data';
 import type { createRenderedTour } from '@/lib/tour-scene';
 
 type Engine = ReturnType<typeof createRenderedTour>;
-const repo = 'https://github.com/dylanxzthomas/california-unit-4';
+const repo = 'https://github.com/dylanxzthomas/apartment-virtual-tour';
 const photos = photoCaptions.slice(0, 12);
 
 export default function Home() {
@@ -80,10 +80,10 @@ export default function Home() {
     </div>
     <Sheet open={mobileMap} onOpenChange={setMobileMap}><SheetContent side="left" className="room-sheet"><SheetHeader><SheetTitle>Explore the apartment</SheetTitle><SheetDescription>Choose a room to look around.</SheetDescription></SheetHeader>{navigation}</SheetContent></Sheet>
     <Sheet open={panel !== null} onOpenChange={v => { if (!v) setPanel(null); }}><SheetContent className={`reference-sheet ${panel === 'photos' ? 'photo-sheet' : ''}`}>
-      <SheetHeader><SheetTitle>{panel === 'photos' ? 'The original photos' : 'About this project'}</SheetTitle><SheetDescription>{panel === 'photos' ? 'The 12 interior photos used to build this tour. Some room matches are approximate.' : 'From apartment photos to a place you can explore.'}</SheetDescription></SheetHeader>
+      <SheetHeader><SheetTitle>{panel === 'photos' ? 'The original photos' : 'About this project'}</SheetTitle><SheetDescription>{panel === 'photos' ? 'The 12 interior photos used to build this tour. Some room matches are approximate.' : 'An interactive tour of 2861 California, Unit 4.'}</SheetDescription></SheetHeader>
       {panel === 'photos' && <div className="photo-content"><div className="photo-stage"><img src={`/references/${String(photo).padStart(2, '0')}.png`} alt={photos[photo - 1]} /></div><div className="photo-caption"><div><span>PHOTO {String(photo).padStart(2, '0')} / 12</span><h3>{photos[photo - 1]}</h3></div><div><Button variant="outline" size="icon-lg" onClick={() => step(-1)} aria-label="Previous photograph"><ChevronLeft /></Button><Button variant="outline" size="icon-lg" onClick={() => step(1)} aria-label="Next photograph"><ChevronRight /></Button></div></div><div className="photo-grid">{photos.map((caption, i) => <button key={i} className={photo === i + 1 ? 'active' : ''} aria-pressed={photo === i + 1} onClick={() => setPhoto(i + 1)} aria-label={caption}><img src={`/references/${String(i + 1).padStart(2, '0')}.png`} alt="" loading="lazy" /><span>{String(i + 1).padStart(2, '0')}</span></button>)}</div></div>}
       {panel === 'notes' && <div className="notes-content">
-        <p>I started with 12 interior photos and a floor plan, then used AI to help build the apartment in Blender. The result is this room-by-room tour of 2861 California, Unit 4.</p>
+        <p>I used AI and Blender to turn 12 interior photos and a floor plan into a 3D apartment. This tour brings the rooms together so you can understand the layout before stepping inside.</p>
         <h3>Take a look around</h3><p>Drag to turn your view. Click a marker or choose a room from the map to move to another spot. On a phone, tap <strong>Rooms</strong>. You can also scroll to zoom and use the arrow keys to look around.</p>
         <h3>A closer sense of the space</h3><p>The idea is to help people understand how an apartment fits together before visiting. The tour uses 11 carefully rendered viewpoints, including daylight and reflections.</p>
         <h3>What’s approximate</h3><p>This is a recreation, not a scan of the actual apartment. The layout follows the floor plan, but dimensions, some room details, and the views outside are estimated. The listed size is 1,140 square feet; it hasn’t been independently measured.</p>
