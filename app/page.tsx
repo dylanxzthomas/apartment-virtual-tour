@@ -1,65 +1,96 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Box, Camera, ChevronLeft, ChevronRight, Expand, Code, Footprints, Info, Layers, Map, X } from 'lucide-react';
+import { Camera, ChevronLeft, ChevronRight, Expand, Code, Info, Map } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Slider } from '@/components/ui/slider';
-import { rooms, photoCaptions, type Mode } from '@/lib/apartment-data';
-import type { createApartment } from '@/lib/apartment-scene';
+import { rooms, photoCaptions } from '@/lib/apartment-data';
+import type { createRenderedTour } from '@/lib/tour-scene';
 
-type Engine = ReturnType<typeof createApartment>;
-export default function Home(){
- const host=useRef<HTMLDivElement>(null),engine=useRef<Engine|null>(null),shell=useRef<HTMLElement>(null);
- const [source,setSource]=useState<'free'|'tour'>('tour');
- const desiredRoom=useRef('living');
- const [mode,setMode]=useState<Mode>('walk'),[room,setRoom]=useState('living'),[ready,setReady]=useState(false),[error,setError]=useState(''),[panel,setPanel]=useState<'photos'|'plan'|'notes'|null>(null),[photo,setPhoto]=useState(1),[fov,setFov]=useState(75),[mobileMap,setMobileMap]=useState(false);
- const current=rooms.find(r=>r.id===room)!;
- useEffect(()=>{let cancelled=false;setReady(false);setError('');setMode('walk');
-  const start=async()=>{try{const create=source==='tour'?(await import('@/lib/tour-scene')).createRenderedTour:(await import('@/lib/detailed-scene')).createDetailedApartment;
-   if(cancelled||!host.current)return;
-   engine.current=create(host.current,id=>{if(!cancelled)setRoom(id);},()=>{if(!cancelled){setReady(true);setError('');}},message=>{if(!cancelled)setError(message);});
-   engine.current.setFov(fov);engine.current.jump(desiredRoom.current);
-  }catch(e){if(!cancelled)setError('The 3D view could not start. Try a browser with hardware acceleration.');console.error(e);}};start();
-  return()=>{cancelled=true;engine.current?.dispose();engine.current=null;};
- },[source]);
- const changeSource=(value:string)=>{desiredRoom.current=room;setMode('walk');setSource(value as 'free'|'tour');};
- const changeMode=(m:Mode)=>{setMode(m);engine.current?.setMode(m);};
- const jump=(id:string)=>{desiredRoom.current=id;setMode('walk');engine.current?.jump(id);setMobileMap(false);};
- const openPhotos=()=>{setPhoto(current.photos[0]);setPanel('photos');};
- const step=(delta:number)=>setPhoto(p=>(p-1+delta+14)%14+1);
- const pad=(key:string)=>({onPointerDown:(e:React.PointerEvent)=>{e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);engine.current?.setKey(key,true);},onPointerUp:()=>engine.current?.setKey(key,false),onPointerCancel:()=>engine.current?.setKey(key,false),onLostPointerCapture:()=>engine.current?.setKey(key,false),onKeyDown:(e:React.KeyboardEvent)=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();engine.current?.setKey(key,true);}},onKeyUp:()=>engine.current?.setKey(key,false),onBlur:()=>engine.current?.setKey(key,false)});
- return <main ref={shell} className="apartment-app">
-  <header className="app-header"><div className="identity"><div className="unit-mark">04<span>UNIT</span></div><div><h1>2861 California</h1><p>4 bedrooms <span>·</span> 2 bathrooms <span>·</span> 1,140 sq ft <em>reported</em></p></div></div>
-   <div className="header-actions"><a className="github-link" href="https://github.com/dylanxzthomas/california-unit-4" target="_blank" rel="noopener noreferrer" aria-label="View project on GitHub"><Code size={17}/><span>GitHub</span></a><span className="reconstruction"><i/>Photo-based reconstruction</span><Button variant="ghost" onClick={()=>setPanel('notes')} aria-label="Model information"><Info/><span className="hide-small">Model notes</span></Button><Button variant="outline" onClick={()=>setPanel('plan')}><Map/><span>Source plan</span></Button></div>
-  </header>
-  <div className="workspace">
-   <aside className={`explorer ${mobileMap?'mobile-open':''}`}><Tabs value={source} onValueChange={changeSource} className="source-switch"><TabsList><TabsTrigger value="tour">Rendered tour</TabsTrigger><TabsTrigger value="free">Free walk</TabsTrigger></TabsList></Tabs><div className="aside-heading"><span>EXPLORE THE UNIT</span><Button className="mobile-close" variant="ghost" size="icon" onClick={()=>setMobileMap(false)} aria-label="Close room menu"><X/></Button></div>
-    <div className="mini-plan" aria-label="Schematic reconstruction of the complete floor plan">
-     <svg viewBox="-0.8 -4.5 8.4 17.9" role="img" aria-label="Complete apartment layout, with selected room"><defs><pattern id="inferred" width=".2" height=".2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2=".2" stroke="#71838d" strokeWidth=".024" opacity=".3"/></pattern></defs>
-      {rooms.map(r=>{const [x,z,x1,z1]=r.bounds;return <g key={r.id}><polygon points={r.polygon.map(p=>p.join(',')).join(' ')} fill={r.id===room?'#c4e1e5':r.id==='deck'?'#39454a':'#303a41'} stroke="#889298" strokeWidth=".055"/><text x={(x+x1)/2} y={(z+z1)/2+.1} fill={r.id===room?'#1a3c43':'#e4eaec'} textAnchor="middle" fontSize=".29" fontFamily="Arial">{r.short}</text></g>;})}
-      <text x="3.5" y="8.75" fontSize=".24" fill="#bcc8cd" textAnchor="middle">Entry / laundry</text>
-     </svg>
-     {rooms.map(r=>{const[x,z,x1,z1]=r.bounds;return <button key={r.id} className="plan-hit" onClick={()=>jump(r.id)} aria-label={`Walk to ${r.name}`} style={{left:`${(x+.8)/8.4*100}%`,top:`${(z+4.5)/17.9*100}%`,width:`${(x1-x)/8.4*100}%`,height:`${(z1-z)/17.9*100}%`}}/>;})}
-    </div><div className="plan-legend"><span>Complete plan · estimated scale</span></div>
-    <nav className="room-nav" aria-label="Rooms">{rooms.map((r,i)=><button key={r.id} className={r.id===room?'selected':''} onClick={()=>jump(r.id)}><span className="room-number">{String(i+1).padStart(2,'0')}</span><span>{r.name}</span>{r.id===room?<span className="active-dot"/>:<ChevronRight size={14}/>}</button>)}</nav>
-    <div className="aside-bottom"><span>RECONSTRUCTION / V4</span><p>Approximate geometry.<br/>Photo-to-room matches are provisional.</p></div>
-   </aside>
-   <section className={`viewport ${source==='tour'?'tour-view':'detail-view'}`} aria-label="Apartment walkthrough">
-    <div ref={host} className="scene-host"/>
-    <div className="source-switch-mobile"><Tabs value={source} onValueChange={changeSource}><TabsList><TabsTrigger value="tour">Rendered tour</TabsTrigger><TabsTrigger value="free">Free walk</TabsTrigger></TabsList></Tabs></div><div className="view-toolbar">{source==='free'&&<Tabs value={mode} onValueChange={v=>changeMode(v as Mode)}><TabsList className="view-tabs"><TabsTrigger value="walk"><Footprints/>Walkthrough</TabsTrigger><TabsTrigger value="dollhouse"><Box/>Dollhouse</TabsTrigger><TabsTrigger value="plan"><Layers/>Top view</TabsTrigger></TabsList></Tabs>}{source==='tour'&&<span className="tour-mode-label">360° · Daylight render</span>}<Button className="expand-button" variant="secondary" size="icon-lg" onClick={()=>{if(document.fullscreenElement)document.exitFullscreen();else shell.current?.requestFullscreen().catch(()=>{});}} aria-label="Toggle full screen"><Expand/></Button></div>
-    {!ready&&!error&&<div className="scene-loading"><div className="loading-ring"/>{source==='tour'?'Loading the Blender rendered tour…':'Loading the full apartment…'}</div>}{error&&<div className="scene-error" role="alert">{error}<Button onClick={()=>changeSource(source==='tour'?'free':'tour')}>{source==='tour'?'Open free walk':'Open rendered tour'}</Button><Button onClick={()=>setPanel('plan')}>View source plan</Button></div>}
-    <div className="scene-heading"><span>{mode==='walk'?'YOU ARE IN':mode==='dollhouse'?'THE WHOLE UNIT':'LAYOUT OVERVIEW'}</span><h2>{mode==='walk'?current.name:mode==='dollhouse'?'A different perspective':'Four bedrooms. One connected home.'}</h2><p>{source==='tour'?'Look around · click a marker to move':mode==='walk'?'Full Blender model · baked daylight':'Approximate reconstruction · roof removed'}</p></div>
-    <Button className="mobile-rooms" variant="secondary" onClick={()=>setMobileMap(true)}><Map/>Rooms</Button>
-    {mode==='walk'&&ready&&source==='free'&&<><div className="crosshair" aria-hidden="true"/><div className="movement-pad" aria-label="Movement controls"><Button className="pad-up" variant="secondary" size="icon-lg" aria-label="Walk forward" {...pad('w')}><ArrowUp/></Button><Button variant="secondary" size="icon-lg" aria-label="Turn left" {...pad('arrowleft')}><ArrowLeft/></Button><Button variant="secondary" size="icon-lg" aria-label="Walk backward" {...pad('s')}><ArrowDown/></Button><Button variant="secondary" size="icon-lg" aria-label="Turn right" {...pad('arrowright')}><ArrowRight/></Button></div></>}
-    <div className="bottom-bar"><div className="view-hint">{source==='tour'?<><span>Drag to look</span><i/><span>Scroll to zoom</span><i/><span>Click a room marker to move</span></>:mode==='walk'?<><span>Drag to look</span><i/><span>W A S D to walk</span><i/><span>← → to turn</span></>:mode==='dollhouse'?<><span>Drag to orbit</span><i/><span>Scroll to zoom</span></>:<span>Select a room on the map to step inside</span>}</div><Button className="reference-button" variant="secondary" onClick={openPhotos}><Camera/>Compare photos <span>{String(current.photos.length).padStart(2,'0')}</span></Button></div>
-    <div className="photo-peek" onClick={openPhotos} role="button" tabIndex={0} onKeyDown={e=>{if(e.key==='Enter')openPhotos();}} aria-label="Open reference photograph"><img src={`/references/${String(current.photos[0]).padStart(2,'0')}.png`} alt={`Reference photo for ${current.name}`}/><span><Camera size={13}/>Original reference</span></div>
-   </section>
-  </div>
-  <Sheet open={panel!==null} onOpenChange={v=>{if(!v)setPanel(null);}}><SheetContent className={`reference-sheet ${panel==='photos'?'photo-sheet':''}`}><SheetHeader><SheetTitle>{panel==='photos'?'Original photographs':panel==='plan'?'The supplied floor plan':'About this reconstruction'}</SheetTitle><SheetDescription>{panel==='photos'?'The supplied images remain the source of truth for appearance.':panel==='plan'?'The supplied full unit drawing, shown without alteration.':'A navigable interpretation of 12 photos, the complete floor plan, and the reported unit details.'}</SheetDescription></SheetHeader>
-   {panel==='photos'&&<div className="photo-content"><div className="photo-stage"><img src={`/references/${String(photo).padStart(2,'0')}.png`} alt={photoCaptions[photo-1]}/></div><div className="photo-caption"><div><span>REFERENCE {String(photo).padStart(2,'0')} / 14</span><h3>{photoCaptions[photo-1]}</h3></div><div><Button variant="outline" size="icon-lg" onClick={()=>step(-1)} aria-label="Previous photograph"><ChevronLeft/></Button><Button variant="outline" size="icon-lg" onClick={()=>step(1)} aria-label="Next photograph"><ChevronRight/></Button></div></div><div className="photo-grid">{photoCaptions.map((caption,i)=><button key={i} className={photo===i+1?'active':''} onClick={()=>setPhoto(i+1)} aria-label={caption}><img src={`/references/${String(i+1).padStart(2,'0')}.png`} alt={caption} loading="lazy"/><span>{String(i+1).padStart(2,'0')}</span></button>)}</div><p className="assignment-note">{current.note}</p></div>}
-   {panel==='plan'&&<div className="plan-content"><img src="/references/14.png" alt="Complete apartment 4 floor plan with BR1 rear bay, L-shaped BR2, living and kitchen, covered deck, BR3, BA1, BA2, entry hall and BR4"/><h3>Layout anchored to the full plan</h3><p>All four bedrooms, both bathrooms, the L-shaped entry hall, kitchen, covered deck and rear bay are included. The upper edge is labeled rear yard on the drawing.</p><h3>What remains estimated</h3><p>Room dimensions, ceiling height, opening sizes and photo assignments. The drawing has no measurements. The bay shape follows the plan even though it is not clearly shown in the photos.</p><p>Reported unit details: <strong>4 bedrooms, 2 bathrooms and 1,140 square feet</strong>. The model is a visual reconstruction, not a measured survey.</p></div>}
-   {panel==='notes'&&<div className="notes-content"><div className="facts"><span>4 bedrooms</span><span>2 bathrooms</span><span>1,140 sq ft reported</span></div><h3>Two ways to explore</h3><p><strong>Rendered tour</strong> uses 11 full 360° images rendered in Blender Cycles at 4,096 × 2,048 pixels. Drag to look around, scroll to zoom, and click room markers or the map to move. Lighting, glass and reflections are already rendered into the images. You stand at fixed viewpoints; fades between them are transitions, not continuous camera motion. Fine detail softens as you zoom further into a panorama.</p><p><strong>Free walk</strong> uses the same complete Blender apartment, with continuous movement, dollhouse and top views. Four lighting maps preserve Blender’s diffuse illumination inside and on the neighboring exterior. Reflection captures and simplified glass keep it responsive, so its appearance differs from the rendered tour.</p><p><a href="/models/2861-california-unit-4.blend" download>Download the full Blender project</a> · <a href="/models/daylight/apartment.glb.gz" download>Download compressed web geometry</a></p><h3>Daylight</h3><p>A sun-and-sky environment illuminates the apartment through its window openings, with light bouncing off the neighboring siding, walls and floors. Interior fixtures remain on at a neutral warm-white balance. The side light wells follow the photos; rear foliage, surrounding heights and sun direction are illustrative. This is a daylight visualization, not a measured solar study.</p><h3>Built from photos and a plan</h3><p>The complete plan anchors all four bedrooms, two baths, the living area, kitchen and covered deck. White cabinetry, dark counters, stainless appliances, wood-look flooring, window trim and bathroom fixtures are reconstructed from the photos.</p><h3>Where the model is provisional</h3><p>Room shapes and connections follow the full plan, including the rear bay at BR1, the L-shaped BR2 and BR4 below the entry hall. Photo-to-room assignments remain tentative. The kitchen appliance order follows the photographs where it differs from the schematic. Laundry placement, deck appearance, ceiling height (about 8 ft 10 in) and window sizes are estimated.</p><p>This is a manually modeled visual reconstruction, not a photogrammetry scan or an exact floor-area measurement. Exterior views are inferred. In Free walk, mirrors and reflections use approximate room captures. In Rendered tour, their appearance is calculated by Blender at each viewpoint.</p><h3>What would improve accuracy</h3><p>One measured wall length per room, ceiling height, and a continuous video from the entry through all rooms would let us refine the scale and confirm which photos belong to each room.</p><h3>Viewing angle</h3><div className="fov-label"><span>Natural</span><strong>{fov}°</strong><span>Wide</span></div><Slider value={[fov]} min={50} max={85} step={1} onValueChange={v=>{const n=Array.isArray(v)?v[0]:v;setFov(n);engine.current?.setFov(n);}} aria-label="Camera field of view"/><h3>Controls</h3><p>Rendered tour: drag to look, scroll to zoom, and click a room marker to change position. Arrow keys look around. Free walk: drag to look, W/A/S/D to move, and arrow keys to move or turn. Touch controls are available in Free walk. Room buttons work in both modes.</p></div>}
-  </SheetContent></Sheet>
- </main>;
+type Engine = ReturnType<typeof createRenderedTour>;
+const repo = 'https://github.com/dylanxzthomas/california-unit-4';
+const photos = photoCaptions.slice(0, 12);
+
+export default function Home() {
+  const host = useRef<HTMLDivElement>(null);
+  const engine = useRef<Engine | null>(null);
+  const shell = useRef<HTMLElement>(null);
+  const [room, setRoom] = useState('living');
+  const [ready, setReady] = useState(false);
+  const [error, setError] = useState('');
+  const [attempt, setAttempt] = useState(0);
+  const [panel, setPanel] = useState<'photos' | 'notes' | null>(null);
+  const [photo, setPhoto] = useState(1);
+  const [mobileMap, setMobileMap] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
+  const current = rooms.find(r => r.id === room) || rooms[0];
+
+  useEffect(() => {
+    let cancelled = false;
+    setReady(false); setError('');
+    setFullscreen(Boolean(document.fullscreenEnabled));
+    import('@/lib/tour-scene').then(({ createRenderedTour }) => {
+      if (cancelled || !host.current) return;
+      engine.current = createRenderedTour(host.current,
+        id => { if (!cancelled) setRoom(id); },
+        () => { if (!cancelled) { setReady(true); setError(''); } },
+        message => { if (!cancelled) setError(message); });
+      engine.current.setFov(75);
+    }).catch(() => { if (!cancelled) setError('The tour could not start. Please try again or explore the original photos.'); });
+    return () => { cancelled = true; engine.current?.dispose(); engine.current = null; };
+  }, [attempt]);
+
+  const jump = (id: string) => { engine.current?.jump(id); setMobileMap(false); };
+  const openPhotos = () => { setPhoto(current.photos[0] <= 12 ? current.photos[0] : 1); setPanel('photos'); };
+  const step = (delta: number) => setPhoto(p => (p - 1 + delta + photos.length) % photos.length + 1);
+  const navigation = <>
+    <div className="mini-plan" aria-label="Apartment room map">
+      <svg viewBox="-0.8 -4.5 8.4 17.9" role="img" aria-label="Apartment layout, with the current room highlighted">
+        {rooms.map(r => { const [x, z, x1, z1] = r.bounds; return <g key={r.id}>
+          <polygon points={r.polygon.map(p => p.join(',')).join(' ')} fill={r.id === room ? '#c4e1e5' : '#303a41'} stroke="#889298" strokeWidth=".055" />
+          <text x={(x + x1) / 2} y={(z + z1) / 2 + .1} fill={r.id === room ? '#1a3c43' : '#e4eaec'} textAnchor="middle" fontSize=".29" fontFamily="Arial">{r.short}</text>
+        </g>; })}
+      </svg>
+      {rooms.map(r => { const [x, z, x1, z1] = r.bounds; return <button key={r.id} className="plan-hit" onClick={() => jump(r.id)} aria-label={`Visit ${r.name}`} style={{ left: `${(x + .8) / 8.4 * 100}%`, top: `${(z + 4.5) / 17.9 * 100}%`, width: `${(x1 - x) / 8.4 * 100}%`, height: `${(z1 - z) / 17.9 * 100}%` }} />; })}
+    </div>
+    <div className="plan-legend">Select a room to step inside</div>
+    <nav className="room-nav" aria-label="Rooms">{rooms.map((r, i) => <button key={r.id} className={r.id === room ? 'selected' : ''} aria-current={r.id === room ? 'location' : undefined} onClick={() => jump(r.id)}>
+      <span className="room-number">{String(i + 1).padStart(2, '0')}</span><span>{r.name}</span>{r.id === room ? <span className="active-dot" /> : <ChevronRight size={14} />}
+    </button>)}</nav>
+  </>;
+
+  return <main ref={shell} className="apartment-app">
+    <header className="app-header">
+      <div className="identity"><div className="unit-mark">04<span>UNIT</span></div><div><h1>2861 California</h1><p>4 bedrooms <span>·</span> 2 bathrooms <span>·</span> 1,140 sq ft</p></div></div>
+      <div className="header-actions">
+        <a className="github-link" href={repo} target="_blank" rel="noopener noreferrer" aria-label="View project on GitHub"><Code size={17} /><span>GitHub</span></a>
+        <Button variant="ghost" onClick={() => setPanel('notes')} aria-label="About this project"><Info /><span>About</span></Button>
+      </div>
+    </header>
+    <div className="workspace">
+      <aside className="explorer"><div className="aside-heading">EXPLORE THE APARTMENT</div>{navigation}<div className="aside-bottom"><a href="https://x.com/dylan_szeto" target="_blank" rel="noopener noreferrer">A project by Dylan Szeto ↗</a></div></aside>
+      <section className="viewport tour-view" aria-label="Apartment virtual tour">
+        <div ref={host} className="scene-host" />
+        <div className="view-toolbar"><span className="tour-mode-label">Virtual tour <span>360°</span></span>{fullscreen && <Button className="expand-button" variant="secondary" size="icon-lg" onClick={() => { if (document.fullscreenElement) void document.exitFullscreen(); else void shell.current?.requestFullscreen().catch(() => {}); }} aria-label="Toggle full screen"><Expand /></Button>}</div>
+        {!ready && !error && <div className="scene-loading" role="status"><div className="loading-ring" />Opening your tour…</div>}
+        {error && <div className="scene-error" role="alert"><p>{error}</p><Button onClick={() => setAttempt(n => n + 1)}>Try again</Button><Button onClick={openPhotos}>View original photos</Button></div>}
+        <div className="scene-heading"><span>YOU ARE IN</span><h2 aria-live="polite">{current.name}</h2></div>
+        <Button className="mobile-rooms" variant="secondary" onClick={() => setMobileMap(true)} aria-label="Choose a room"><Map />Rooms</Button>
+        <div className="bottom-bar"><div className="view-hint"><span>Drag to look around</span><i /><span>Click a marker to move</span></div><Button className="reference-button" variant="secondary" onClick={openPhotos}><Camera />Original photos</Button></div>
+      </section>
+    </div>
+    <Sheet open={mobileMap} onOpenChange={setMobileMap}><SheetContent side="left" className="room-sheet"><SheetHeader><SheetTitle>Explore the apartment</SheetTitle><SheetDescription>Choose a room to look around.</SheetDescription></SheetHeader>{navigation}</SheetContent></Sheet>
+    <Sheet open={panel !== null} onOpenChange={v => { if (!v) setPanel(null); }}><SheetContent className={`reference-sheet ${panel === 'photos' ? 'photo-sheet' : ''}`}>
+      <SheetHeader><SheetTitle>{panel === 'photos' ? 'The original photos' : 'About this project'}</SheetTitle><SheetDescription>{panel === 'photos' ? 'The 12 interior photos used to build this tour. Some room matches are approximate.' : 'From apartment photos to a place you can explore.'}</SheetDescription></SheetHeader>
+      {panel === 'photos' && <div className="photo-content"><div className="photo-stage"><img src={`/references/${String(photo).padStart(2, '0')}.png`} alt={photos[photo - 1]} /></div><div className="photo-caption"><div><span>PHOTO {String(photo).padStart(2, '0')} / 12</span><h3>{photos[photo - 1]}</h3></div><div><Button variant="outline" size="icon-lg" onClick={() => step(-1)} aria-label="Previous photograph"><ChevronLeft /></Button><Button variant="outline" size="icon-lg" onClick={() => step(1)} aria-label="Next photograph"><ChevronRight /></Button></div></div><div className="photo-grid">{photos.map((caption, i) => <button key={i} className={photo === i + 1 ? 'active' : ''} aria-pressed={photo === i + 1} onClick={() => setPhoto(i + 1)} aria-label={caption}><img src={`/references/${String(i + 1).padStart(2, '0')}.png`} alt="" loading="lazy" /><span>{String(i + 1).padStart(2, '0')}</span></button>)}</div></div>}
+      {panel === 'notes' && <div className="notes-content">
+        <p>I started with 12 interior photos and a floor plan, then used AI to help build the apartment in Blender. The result is this room-by-room tour of 2861 California, Unit 4.</p>
+        <h3>Take a look around</h3><p>Drag to turn your view. Click a marker or choose a room from the map to move to another spot. On a phone, tap <strong>Rooms</strong>. You can also scroll to zoom and use the arrow keys to look around.</p>
+        <h3>A closer sense of the space</h3><p>The idea is to help people understand how an apartment fits together before visiting. The tour uses 11 carefully rendered viewpoints, including daylight and reflections.</p>
+        <h3>What’s approximate</h3><p>This is a recreation, not a scan of the actual apartment. The layout follows the floor plan, but dimensions, some room details, and the views outside are estimated. The listed size is 1,140 square feet; it hasn’t been independently measured.</p>
+        <h3>Curious how it was made?</h3><p>The code, source material, and editable 3D apartment are available on GitHub.</p>
+        <div className="project-links"><a href={repo} target="_blank" rel="noopener noreferrer">Explore the code ↗</a><a href="/models/2861-california-unit-4.blend" download>Download the Blender model ↓</a></div>
+        <p className="project-credit">Built by <a href="https://x.com/dylan_szeto" target="_blank" rel="noopener noreferrer">Dylan Szeto</a>.</p>
+      </div>}
+    </SheetContent></Sheet>
+  </main>;
 }

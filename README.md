@@ -6,13 +6,12 @@ The experiment: can a small set of listing photos make a layout easier to unders
 
 ![Blender daylight rendering of the reconstructed kitchen](public/preview.png)
 
-**[Open the live walkthrough](https://california-unit-4-trim-projects.vercel.app/)** · **[GitHub source](https://github.com/dylanxzthomas/california-unit-4)**
+**[Open the live walkthrough](https://california-unit-4.vercel.app/)** · **[GitHub source](https://github.com/dylanxzthomas/california-unit-4)**
 
 ## Explore
 
-- **Rendered tour:** 11 Blender Cycles panoramas. Drag to look, scroll to zoom, and select room markers to move between fixed viewpoints.
-- **Free walk:** continuous movement through the same model, plus dollhouse and top views. Uses baked diffuse lighting and HDR reflection captures.
-- Compare against the source photos and complete floor plan. Download the editable Blender model inside **Model notes**.
+- **Virtual tour:** 11 Blender Cycles panoramas. Drag to look, scroll to zoom, and select room markers to move between fixed viewpoints.
+- Compare against the source photos and complete floor plan. Download the editable Blender model inside **About**.
 
 ## Run locally
 
@@ -60,3 +59,5 @@ Source photographs and the plan were supplied for this project; their inclusion 
 ## Deployment notes
 
 The production release is hosted in the `trim-projects` Vercel workspace. The initial deployment was submitted through the Vercel connector and built from a pinned public GitHub commit. Git pushes do not automatically redeploy this project yet. To enable that workflow, connect this repository in the Vercel project’s Git settings and use its Vite configuration.
+
+The public experience now presents only the Virtual tour. The earlier continuous viewer remains in the source repository for builders, but is not exposed in the public interface.
