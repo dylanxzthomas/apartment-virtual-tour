@@ -1,0 +1,59 @@
+{
+  "sky_model": "SINGLE_SCATTERING",
+  "world_strength": 1.5,
+  "exposure_ev": -0.699999988079071,
+  "diffuse_bounces": 8,
+  "window_apertures": [
+    {
+      "window": "BR1 west bay glass",
+      "unblocked_sky_directions": 25,
+      "sampled_directions": 25
+    },
+    {
+      "window": "BR1 east bay glass",
+      "unblocked_sky_directions": 25,
+      "sampled_directions": 25
+    },
+    {
+      "window": "BR2 rear window glass",
+      "unblocked_sky_directions": 25,
+      "sampled_directions": 25
+    },
+    {
+      "window": "BR2 side window glass",
+      "unblocked_sky_directions": 10,
+      "sampled_directions": 25
+    },
+    {
+      "window": "BR1 rear bay window glass",
+      "unblocked_sky_directions": 25,
+      "sampled_directions": 25
+    },
+    {
+      "window": "Living window glass",
+      "unblocked_sky_directions": 7,
+      "sampled_directions": 25
+    },
+    {
+      "window": "Deck-side window glass",
+      "unblocked_sky_directions": 9,
+      "sampled_directions": 25
+    },
+    {
+      "window": "BR3 side window glass",
+      "unblocked_sky_directions": 7,
+      "sampled_directions": 25
+    },
+    {
+      "window": "BR4 side window glass",
+      "unblocked_sky_directions": 7,
+      "sampled_directions": 25
+    },
+    {
+      "window": "BR4 side window glass.001",
+      "unblocked_sky_directions": 7,
+      "sampled_directions": 25
+    }
+  ],
+  "note": "Discrete geometric sky-visibility check, not illuminance or a measured daylight factor."
+}

@@ -1,0 +1,13 @@
+{
+  "zones": [
+    "living",
+    "rear",
+    "front",
+    "exterior"
+  ],
+  "exposure": 0.6155722117589056,
+  "lightmapIntensity": 3.141592653589793,
+  "samples": 512,
+  "source": "Daylight Cycles direct + indirect diffuse; interior and exterior lightmaps, three room reflection captures",
+  "lighting_basis": "Illustrative Nishita sun/sky, 50 degree elevation, 135 degree scene azimuth; not geolocated/date-calibrated. Existing side light wells retained. Rear-yard foliage inferred. Window shadow transparency approximates clear-glass transmission; viewed rays refract. Eight diffuse bounces. No artificial window fill lights."
+}

@@ -1,0 +1,57 @@
+[
+  {
+    "id": "living",
+    "floor": "living floor plank.111",
+    "nearest_surface_m": 0.97
+  },
+  {
+    "id": "kitchen",
+    "floor": "living floor plank.085",
+    "nearest_surface_m": 1.42
+  },
+  {
+    "id": "bed1",
+    "floor": "bed1 floor plank.063",
+    "nearest_surface_m": 1.153
+  },
+  {
+    "id": "bed2",
+    "floor": "bed2 floor plank.091",
+    "nearest_surface_m": 1.226
+  },
+  {
+    "id": "bed3",
+    "floor": "bed3 floor plank.065",
+    "nearest_surface_m": 0.889
+  },
+  {
+    "id": "bed4",
+    "floor": "bed4 floor plank.060",
+    "nearest_surface_m": 1.363
+  },
+  {
+    "id": "bath1",
+    "floor": "bath1 floor tile.030",
+    "nearest_surface_m": 0.382
+  },
+  {
+    "id": "bath2",
+    "floor": "bath2 floor tile.028",
+    "nearest_surface_m": 0.29
+  },
+  {
+    "id": "hall",
+    "floor": "hall floor plank.101",
+    "nearest_surface_m": 0.57
+  },
+  {
+    "id": "entry",
+    "floor": "hall floor plank.052",
+    "nearest_surface_m": 0.49
+  },
+  {
+    "id": "deck",
+    "floor": "Covered deck board.006",
+    "nearest_surface_m": 1.009
+  }
+]
