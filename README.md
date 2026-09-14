@@ -1,6 +1,6 @@
 # Apartment Virtual Tour
 
-**A 360° apartment walkthrough built with Blender, Three.js, and AI.**
+**A 360° apartment walkthrough built with Blender, Three.js, and GPT Astra-6.**
 
 Starting with 12 interior photos and a floor plan, this project recreates a four-bedroom apartment as a room-by-room virtual tour. Explore 11 viewpoints, look around in every direction, and compare the result with the original photos.
 
