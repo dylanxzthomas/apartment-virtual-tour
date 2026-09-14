@@ -6,7 +6,7 @@ The experiment: can a small set of listing photos make a layout easier to unders
 
 ![Blender daylight rendering of the reconstructed kitchen](public/preview.png)
 
-**[Open the live walkthrough](https://california-unit-4.vercel.app/)** · **[GitHub source](https://github.com/dylanxzthomas/california-unit-4)**
+**[Open the live walkthrough](https://2861-california-unit-4.vercel.app/)** · **[GitHub source](https://github.com/dylanxzthomas/california-unit-4)**
 
 ## Explore
 
