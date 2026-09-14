@@ -2,8 +2,6 @@
 
 A four-bedroom apartment reconstructed from **12 interior photos and a floor plan**, modeled and rendered in Blender, and made explorable in the browser. Built by [Dylan Szeto](https://x.com/dylan_szeto) with GPT-Astra 6.
 
-The experiment: can a small set of listing photos make a layout easier to understand before an in-person visit?
-
 ![Blender daylight rendering of the reconstructed kitchen](public/preview.png)
 
 **[Open the live walkthrough](https://2861-california-unit-4.vercel.app/)** · **[GitHub source](https://github.com/dylanxzthomas/california-unit-4)**
