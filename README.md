@@ -1,6 +1,6 @@
 # Apartment from photos
 
-A four-bedroom apartment reconstructed from **12 interior photos and a floor plan**, modeled and rendered in Blender, and made explorable in the browser. Built by [Dylan Szeto](https://x.com/dylan_szeto) with AI assistance.
+A four-bedroom apartment reconstructed from **12 interior photos and a floor plan**, modeled and rendered in Blender, and made explorable in the browser. Built by [Dylan Szeto](https://x.com/dylan_szeto) with GPT-Astra 6.
 
 The experiment: can a small set of listing photos make a layout easier to understand before an in-person visit?
 
