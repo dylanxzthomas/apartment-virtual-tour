@@ -6,6 +6,8 @@ The experiment: can a small set of listing photos make a layout easier to unders
 
 ![Blender daylight rendering of the reconstructed kitchen](public/preview.png)
 
+**[Open the live walkthrough](https://california-unit-4-trim-projects.vercel.app/)** · **[GitHub source](https://github.com/dylanxzthomas/california-unit-4)**
+
 ## Explore
 
 - **Rendered tour:** 11 Blender Cycles panoramas. Drag to look, scroll to zoom, and select room markers to move between fixed viewpoints.
@@ -54,3 +56,7 @@ See [Blender workflow](blender/README.md) and [model evidence](blender/FULL_UNIT
 2861 California Street, Unit 4. Reported details: 4 bedrooms, 2 bathrooms, 1,140 square feet. The plan establishes room connections; dimensions, some photo assignments, exterior scenery, and sun direction are inferred. This is not a measured survey, a solar study, or a photogrammetry scan. Panorama transitions are fades between fixed positions, not a continuously moving camera.
 
 Source photographs and the plan were supplied for this project; their inclusion is not a grant of reuse rights. No blanket license is asserted for third-party source materials.
+
+## Deployment notes
+
+The production release is hosted in the `trim-projects` Vercel workspace. The initial deployment was submitted through the Vercel connector and built from a pinned public GitHub commit. Git pushes do not automatically redeploy this project yet. To enable that workflow, connect this repository in the Vercel project’s Git settings and use its Vite configuration.
