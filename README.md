@@ -4,7 +4,7 @@
 
 Starting with 12 interior photos and a floor plan, this project recreates a four-bedroom apartment as a room-by-room virtual tour. Explore 11 viewpoints, look around in every direction, and compare the result with the original photos.
 
-Built by [Dylan Szeto](https://x.com/dylan_szeto). Featured apartment: **2861 California Street, Unit 4**.
+Built by [Dylan Szeto](https://x.com/dylan_szeto) with GPT-Astra 6. Featured apartment: **2861 California Street, Unit 4**.
 
 **[Open the live tour](https://2861-california-unit-4.vercel.app/)** · **[Download the Blender model](https://2861-california-unit-4.vercel.app/models/2861-california-unit-4.blend)**
 
